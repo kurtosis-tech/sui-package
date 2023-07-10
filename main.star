@@ -1,7 +1,7 @@
 postgres_module = import_module("github.com/kurtosis-tech/postgres-package/main.star")
 
-INDEXER_IMAGE_NAME = "mysten/sui-indexer:ci"
-SUI_NODE_IMAGE = "mysten/sui-node:ci"
+INDEXER_IMAGE_NAME = "mysten/sui-indexer:13f89b7b8bbb0a75ff84615623ee79abb6a31228"
+SUI_NODE_IMAGE = "mysten/sui-node:13f89b7b8bbb0a75ff84615623ee79abb6a31228"
 POSTGRES_IMAGE = "postgres:15"
 
 def run(plan, args):
@@ -32,7 +32,7 @@ def run(plan, args):
     postgres_output = postgres_module.run(plan, {"image": POSTGRES_IMAGE, "user": "postgres", "password": "admin", "database": "sui_indexer_testnet"})
 
     plan.add_service(
-        name = "indexer",
+        name = "sui-indexer",
         config = ServiceConfig(
             image = INDEXER_IMAGE_NAME,
             env_vars = {
