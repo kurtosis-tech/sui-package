@@ -8,10 +8,32 @@ RUST_IMAGE = "rust:slim"
 RUST_SERVICE_NAME = "rust-diesel-runner"
 
 def run(plan, args):
+    config_and_genesis = plan.upload_files("github.com/kurtosis-tech/sui-package/static_files/node_config")
+
+    fullnode = plan.add_service(
+        name = "sui-node",
+        config = ServiceConfig(
+            image = SUI_NODE_IMAGE,
+            env_vars = {
+                "RUST_LOG": "info",
+                "RUST_JSON_LOG": "true",
+            },
+            ports = {
+                "json-rpc": PortSpec(number = 9000, transport_protocol="TCP"),
+                "metrics": PortSpec(number = 9184, transport_protocol="TCP"),
+                "udp": PortSpec(number=8084, transport_protocol="UDP")
+            },
+            files =  {
+                "/tmp/config": config_and_genesis
+            },
+            cmd = ["/usr/local/bin/sui-node", "--config-path", "/tmp/config/fullnode.yml"]
+        )
+    )
+
+    fullnode_rpc_url = "http://{0}:9000".format(fullnode.hostname)
 
     postgres_output = postgres_module.run(plan, {"image": POSTGRES_IMAGE, "user": "postgres", "password": "admin", "database": "sui_indexer_testnet"})
 
-    config_and_genesis = plan.upload_files("github.com/kurtosis-tech/sui-package/static_files/node_config")
     cloner = plan.upload_files("github.com/kurtosis-tech/sui-package/static_files/cloner.sh")
 
     plan.add_service(
@@ -54,27 +76,6 @@ def run(plan, args):
         )
     )
     
-    fullnode = plan.add_service(
-        name = "sui-node",
-        config = ServiceConfig(
-            image = SUI_NODE_IMAGE,
-            env_vars = {
-                "RUST_LOG": "info",
-                "RUST_JSON_LOG": "true",
-            },
-            ports = {
-                "json-rpc": PortSpec(number = 9000, transport_protocol="TCP"),
-                "metrics": PortSpec(number = 9184, transport_protocol="TCP"),
-                "udp": PortSpec(number=8084, transport_protocol="UDP")
-            },
-            files =  {
-                "/tmp/config": config_and_genesis
-            },
-            cmd = ["/usr/local/bin/sui-node", "--config-path", "/tmp/config/fullnode.yml"]
-        )
-    )
-    fullnode_rpc_url = "http://{0}:9000".format(fullnode.hostname)
-
     plan.add_service(
         name = "sui-indexer",
         config = ServiceConfig(
