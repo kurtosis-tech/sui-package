@@ -6,6 +6,8 @@ POSTGRES_IMAGE = "postgres:15"
 
 def run(plan, args):
 
+    postgres_output = postgres_module.run(plan, {"image": POSTGRES_IMAGE, "user": "postgres", "password": "admin", "database": "sui_indexer_testnet"})
+
     config_and_genesis = plan.upload_files("github.com/kurtosis-tech/sui-package/static_files")
     
     fullnode = plan.add_service(
@@ -28,8 +30,6 @@ def run(plan, args):
         )
     )
     fullnode_rpc_url = "http://{0}:9000".format(fullnode.hostname)
-
-    postgres_output = postgres_module.run(plan, {"image": POSTGRES_IMAGE, "user": "postgres", "password": "admin", "database": "sui_indexer_testnet"})
 
     plan.add_service(
         name = "sui-indexer",
