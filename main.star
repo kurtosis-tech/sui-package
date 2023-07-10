@@ -13,7 +13,6 @@ def run(plan, args):
             env_vars = {
                 "RUST_LOG": "info",
                 "RUST_JSON_LOG": "true",
-                "LD_PRELOAD": ""
             },
             ports = {
                 "json-rpc": PortSpec(number = 9000, transport_protocol="TCP"),
