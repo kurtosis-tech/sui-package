@@ -1,6 +1,6 @@
 POSTGRES_IMAGE_NAME = "postgres:15"
 INDEXER_IMAGE_NAME = "mysten/sui-indexer:latest"
-SUI_NODE_IMAGE = "mysten/sui-node"
+SUI_NODE_IMAGE = "mysten/sui-node:ci"
 
 def run(plan, args):
 
