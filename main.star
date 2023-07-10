@@ -19,7 +19,7 @@ def run(plan, args):
                 "metrics": PortSpec(number = 9184, transport_protocol="TCP"),
                 "udp": PortSpec(number=8084, transport_protocol="UDP")
             },
-            files {
+            files =  {
                 "/tmp/config": config_and_genesis
             },
             cmd = ["/usr/local/bin/sui-node", "--config-path", "/tmp/config/fullnode.yml"]
