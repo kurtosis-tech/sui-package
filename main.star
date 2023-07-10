@@ -88,8 +88,7 @@ def run(plan, args):
             },
             ports = {
                 "rpc": PortSpec(number= 9000, transport_protocol= "TCP"),
-                "metircs": PortSpec(number = 9184, transport_protocol="TCP")
             },
-            cmd = ["/usr/local/bin/sui-indexer", "--db-url", postgres_output.url, "--rpc-client-url", fullnode_rpc_url]
+            cmd = ["/usr/local/bin/sui-indexer", "--db-url", postgres_output.url, "--rpc-client-url", fullnode_rpc_url, "--rpc-server-worker", "--fullnode-sync-worker"]
         )
     )
