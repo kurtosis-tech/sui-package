@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 # checkout write tag
-git clone $1 /sei-protocol/sei-chain --depth=1 &
+git clone $1 --depth=1 &
 pid=$!
 
 while [ -d "/proc/$pid" ]; do
