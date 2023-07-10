@@ -4,11 +4,54 @@ INDEXER_IMAGE_NAME = "mysten/sui-indexer:13f89b7b8bbb0a75ff84615623ee79abb6a3122
 SUI_NODE_IMAGE = "mysten/sui-node:13f89b7b8bbb0a75ff84615623ee79abb6a31228"
 POSTGRES_IMAGE = "postgres:15"
 
+RUST_IMAGE = "rust:slim"
+
 def run(plan, args):
 
     postgres_output = postgres_module.run(plan, {"image": POSTGRES_IMAGE, "user": "postgres", "password": "admin", "database": "sui_indexer_testnet"})
 
-    config_and_genesis = plan.upload_files("github.com/kurtosis-tech/sui-package/static_files")
+    config_and_genesis = plan.upload_files("github.com/kurtosis-tech/sui-package/static_files/node_config")
+    cloner = plan.upload_files("github.com/kurtosis-tech/sui-package/static_files/cloner.sh")
+
+    plan.add_service(
+        name = "rust"
+        config = ServiceConfig(
+            image = RUST_IMAGE,
+            entrypoint = ["tail", "-f", "/dev/null"],
+            files = {
+                "/tmp/cloner": cloner
+            }
+        )
+    )
+
+    # 1. Get rust up
+    plan.exec(
+        service_name = "rust",
+        recipe = ExecRecipe(
+            command = ["/bin/sh", "-c", "apt update && apt install git libpq-dev -y"]
+        )
+    )
+
+    plan.exec(
+        service_name= = "rust",
+        recipe = ExecRecipe(
+            command = ["/bin/sh", "-c", "cd /tmp && /tmp/cloner/clone.sh https://github.com/MystenLabs/sui.git"]
+        )
+    )
+
+    plan.exec(
+        service_name = "rust",
+        recipe = ExecRecipe(
+            command = ["cargo", "install", "diesel_cli", "--no-default-features", "--features-postgres"]
+        )
+    )
+
+    plan.exec(
+        service_name= = "rust",
+        recipe = ExecRecipe(
+            command = ["/bin/sh", "-c", "cd /tmp/sui/crates/sui-indexer && diesel setup --database-url={0}".format(postgres_output.url)]
+        )
+    )
     
     fullnode = plan.add_service(
         name = "sui-node",
