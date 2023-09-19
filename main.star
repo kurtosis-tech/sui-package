@@ -8,7 +8,7 @@ RUST_IMAGE = "rust:slim"
 RUST_SERVICE_NAME = "rust-diesel-runner"
 
 def run(plan, args):
-    config_and_genesis = plan.upload_files("github.com/kurtosis-tech/sui-package/static_files/node_config")
+    config_and_genesis = plan.upload_files("/static_files/node_config")
 
     fullnode = plan.add_service(
         name = "sui-node",
@@ -34,7 +34,7 @@ def run(plan, args):
 
     postgres_output = postgres_module.run(plan, {"image": POSTGRES_IMAGE, "user": "postgres", "password": "admin", "database": "sui_indexer_testnet"})
 
-    cloner = plan.upload_files("github.com/kurtosis-tech/sui-package/static_files/cloner.sh")
+    cloner = plan.upload_files("/static_files/cloner.sh")
 
     plan.add_service(
         name = RUST_SERVICE_NAME,
